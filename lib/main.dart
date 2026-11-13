@@ -7,9 +7,11 @@ import 'core/config/app_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
-    anonKey: AppConfig.supabaseAnonKey,
+    anonKey: AppConfig.publishableKey,
   );
+
   runApp(const ProviderScope(child: ProtocoloZApp()));
 }
