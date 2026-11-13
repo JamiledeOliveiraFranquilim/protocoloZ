@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
+
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
@@ -41,25 +42,85 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
-  void dispose() { _nickname.dispose(); _email.dispose(); _password.dispose(); super.dispose(); }
+  void dispose() {
+    _nickname.dispose();
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('NOVO SOBREVIVENTE')),
-    body: SafeArea(child: ListView(padding: const EdgeInsets.all(22), children: [
-      const Text('Crie sua identidade no novo mundo.', style: TextStyle(color: Color(0xFFA6ADA7))),
-      const SizedBox(height: 24),
-      Form(key: _form, child: Column(children: [
-        TextFormField(controller: _nickname, maxLength: 18, decoration: const InputDecoration(labelText: 'Apelido'), validator: (v) => v == null || v.trim().length < 3 ? 'Use pelo menos 3 caracteres.' : null),
-        const SizedBox(height: 12),
-        TextFormField(controller: _email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'E-mail'), validator: (v) => v == null || !v.contains('@') ? 'E-mail inválido.' : null),
-        const SizedBox(height: 12),
-        TextFormField(controller: _password, obscureText: true, decoration: const InputDecoration(labelText: 'Senha (mínimo 6 caracteres)'), validator: (v) => v == null || v.length < 6 ? 'Senha muito curta.' : null),
-        if (_message != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_message!, style: const TextStyle(color: Color(0xFFD6C9A5)))),
-        const SizedBox(height: 20),
-        SizedBox(width: double.infinity, child: FilledButton(onPressed: _busy ? null : _register, child: Text(_busy ? 'CRIANDO...' : 'CRIAR CONTA'))),
-      ])),
-      TextButton(onPressed: () => context.go('/login'), child: const Text('Voltar ao login')),
-    ])),
-  );
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F8F5),
+      appBar: AppBar(
+        title: const Text('Novo sobrevivente'),
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(22),
+          children: [
+            const Text(
+              'Crie sua identidade no novo mundo.',
+              style: TextStyle(color: Color(0xFF5A6A62)),
+            ),
+            const SizedBox(height: 24),
+            Form(
+              key: _form,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nickname,
+                    maxLength: 18,
+                    decoration: const InputDecoration(labelText: 'Apelido'),
+                    validator: (v) =>
+                        v == null || v.trim().length < 3 ? 'Use pelo menos 3 caracteres.' : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _email,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(labelText: 'E-mail'),
+                    validator: (v) =>
+                        v == null || !v.contains('@') ? 'E-mail inválido.' : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _password,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Senha (mínimo 6 caracteres)',
+                    ),
+                    validator: (v) =>
+                        v == null || v.length < 6 ? 'Senha muito curta.' : null,
+                  ),
+                  if (_message != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        _message!,
+                        style: const TextStyle(color: Color(0xFF3EA65E)),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _busy ? null : _register,
+                      child: Text(_busy ? 'CRIANDO...' : 'CRIAR CONTA'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => context.go('/login'),
+              child: const Text('Voltar ao login'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
