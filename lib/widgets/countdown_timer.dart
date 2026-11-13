@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 
 class CountdownTimer extends StatefulWidget {
   final DateTime endsAt;
+
   const CountdownTimer({super.key, required this.endsAt});
+
   @override
   State<CountdownTimer> createState() => _CountdownTimerState();
 }
@@ -13,19 +15,46 @@ class _CountdownTimerState extends State<CountdownTimer> {
   Duration _remaining = Duration.zero;
 
   @override
-  void initState() { super.initState(); _update(); _timer = Timer.periodic(const Duration(seconds: 1), (_) => _update()); }
+  void initState() {
+    super.initState();
+    _update();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _update());
+  }
+
   void _update() {
     final d = widget.endsAt.difference(DateTime.now());
-    if (mounted) setState(() => _remaining = d.isNegative ? Duration.zero : d);
+    if (mounted) {
+      setState(() => _remaining = d.isNegative ? Duration.zero : d);
+    }
   }
+
   @override
-  void dispose() { _timer.cancel(); super.dispose(); }
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final h = _remaining.inHours.toString().padLeft(2, '0');
     final m = (_remaining.inMinutes % 60).toString().padLeft(2, '0');
     final s = (_remaining.inSeconds % 60).toString().padLeft(2, '0');
-    return Text('$h:$m:$s', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: 2));
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF4ED),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text(
+        '$h : $m : $s',
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 2,
+          color: Color(0xFF1A2A23),
+        ),
+      ),
+    );
   }
 }

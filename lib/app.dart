@@ -5,21 +5,33 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/theme/app_theme.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/expeditions/expeditions_screen.dart';
 import 'screens/factions/faction_screen.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/splash/splash_screen.dart';
 import 'screens/inventory/inventory_screen.dart';
-import 'screens/expeditions/expeditions_screen.dart';
-import 'screens/profile/profile_screen.dart';
 import 'screens/map/shelter_map_screen.dart';
+import 'screens/profile/profile_screen.dart';
+import 'screens/shelters/shelter_detail_screen.dart';
+import 'screens/shelters/shelter_list_screen.dart';
+import 'screens/splash/splash_screen.dart';
+import 'screens/trades/trade_detail_screen.dart';
+import 'screens/trades/trade_screen.dart';
 
 final _router = GoRouter(
   initialLocation: '/',
   refreshListenable: GoRouterRefreshStream(Supabase.instance.client.auth.onAuthStateChange),
   redirect: (context, state) {
     final session = Supabase.instance.client.auth.currentSession;
-    final onAuth = state.matchedLocation == '/login' || state.matchedLocation == '/register';
-    if (session == null && !onAuth && state.matchedLocation != '/') return '/login';
+    final current = state.matchedLocation;
+    final isAuthRoute = current == '/login' || current == '/register';
+
+    if (session == null) {
+      if (current == '/' || isAuthRoute) return null;
+      return '/login';
+    }
+
+    if (current == '/') return '/home';
+
     return null;
   },
   routes: [
@@ -27,6 +39,20 @@ final _router = GoRouter(
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
     GoRoute(path: '/faction', builder: (_, __) => const FactionScreen()),
+    GoRoute(path: '/trocas', builder: (_, __) => const TradeScreen()),
+    GoRoute(
+      path: '/trocas/:id',
+      builder: (context, state) => TradeDetailScreen(
+        tradeId: state.pathParameters['id'] ?? 'trade-101',
+      ),
+    ),
+    GoRoute(path: '/abrigos', builder: (_, __) => const ShelterListScreen()),
+    GoRoute(
+      path: '/abrigos/:id',
+      builder: (context, state) => ShelterDetailScreen(
+        shelterId: state.pathParameters['id'] ?? 's-1',
+      ),
+    ),
     ShellRoute(
       builder: (_, state, child) => GameShell(location: state.matchedLocation, child: child),
       routes: [
@@ -47,7 +73,7 @@ class ProtocoloZApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp.router(
         title: 'Protocolo Z',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.dark(),
+        theme: AppTheme.light(),
         routerConfig: _router,
       );
 }
@@ -55,6 +81,7 @@ class ProtocoloZApp extends StatelessWidget {
 class GameShell extends StatelessWidget {
   final String location;
   final Widget child;
+
   const GameShell({super.key, required this.location, required this.child});
 
   int get _index {
@@ -67,14 +94,39 @@ class GameShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const paths = ['/home', '/inventory', '/expeditions', '/profile'];
-    const icons = [Icons.shield_outlined, Icons.inventory_2_outlined, Icons.explore_outlined, Icons.person_outline];
+    const icons = [
+      Icons.eco_rounded,
+      Icons.backpack_rounded,
+      Icons.explore_rounded,
+      Icons.person_rounded,
+    ];
     const labels = ['Base', 'Mochila', 'Expedições', 'Perfil'];
+
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => context.go(paths[i]),
-        destinations: List.generate(4, (i) => NavigationDestination(icon: Icon(icons[i]), label: labels[i])),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(18),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          height: 76,
+          selectedIndex: _index,
+          onDestinationSelected: (i) => context.go(paths[i]),
+          destinations: List.generate(
+            4,
+            (i) => NavigationDestination(
+              icon: Icon(icons[i]),
+              label: labels[i],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -84,7 +136,9 @@ class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     _subscription = stream.listen((_) => notifyListeners());
   }
+
   late final dynamic _subscription;
+
   @override
   void dispose() {
     _subscription.cancel();
