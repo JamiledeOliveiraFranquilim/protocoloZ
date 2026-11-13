@@ -15,28 +15,29 @@ class StatPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF152B39),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withAlpha(12)),
+        border: Border.all(color: const Color(0xFFE5EBE5)),
       ),
       child: Column(
         children: [
-          Icon(icon, color: const Color(0xFF8EF29F), size: 22),
+          Icon(icon, color: const Color(0xFF3EA65E), size: 22),
           const SizedBox(height: 8),
           Text(
             value,
             style: const TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 19,
+              fontSize: 18,
+              color: Color(0xFF1A2A23),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFFA6ADA7),
+              color: Color(0xFF5A6A62),
               fontSize: 11,
               letterSpacing: 0.2,
             ),

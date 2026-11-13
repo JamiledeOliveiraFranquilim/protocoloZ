@@ -17,13 +17,13 @@ class FactionBadge extends StatelessWidget {
       width: 58,
       height: 58,
       decoration: BoxDecoration(
-        color: _color.withAlpha(26),
+        color: _color.withAlpha(22),
         shape: BoxShape.circle,
-        border: Border.all(color: _color.withAlpha(120), width: 2),
+        border: Border.all(color: _color.withAlpha(140), width: 2),
         boxShadow: [
           BoxShadow(
-            color: _color.withAlpha(80),
-            blurRadius: 18,
+            color: _color.withAlpha(40),
+            blurRadius: 14,
             spreadRadius: 2,
           ),
         ],

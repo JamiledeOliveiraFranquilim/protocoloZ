@@ -98,55 +98,62 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
+                  child: StatPanel(
+                    icon: Icons.calendar_today_rounded,
+                    label: 'Dias',
+                    value: '76',
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: StatPanel(
-                      icon: Icons.calendar_today_rounded,
-                      label: 'Days',
-                      value: '76',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              const HordeAlertBanner(
-                message: 'Mantenha atenção aos sinais de atividade nas proximidades.',
-              ),
-              const SizedBox(height: 22),
-              Text(
-                'Sua jornada',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
                 ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            const HordeAlertBanner(
+              message: 'Atividade suspeita detectada nas bordas do perímetro.',
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Roteiro da jornada',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
               ),
-              const SizedBox(height: 12),
-              _ActionTile(
-                icon: Icons.explore_rounded,
-                title: 'Iniciar expedição',
-                subtitle: 'Procure recursos fora do abrigo.',
-                onTap: () => context.go('/expeditions'),
-              ),
-              const SizedBox(height: 10),
-              _ActionTile(
-                icon: Icons.inventory_2_rounded,
-                title: 'Consultar inventário',
-                subtitle: 'Confira seus suprimentos e itens.',
-                onTap: () => context.go('/inventory'),
-              ),
-              const SizedBox(height: 10),
-              _ActionTile(
-                icon: Icons.map_rounded,
-                title: 'Mapa e abrigos',
-                subtitle: 'Visualize rotas e pontos estratégicos.',
-                onTap: () => context.go('/map'),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+            _ActionTile(
+              icon: Icons.explore_rounded,
+              title: 'Expedições',
+              subtitle: 'Recolha suprimentos e recupere ativos.',
+              onTap: () => context.go('/expeditions'),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.backpack_rounded,
+              title: 'Inventário',
+              subtitle: 'Revise armas, recursos e ferramentas.',
+              onTap: () => context.go('/inventory'),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.map_rounded,
+              title: 'Abrigos',
+              subtitle: 'Localize rotas e pontos de apoio.',
+              onTap: () => context.go('/map'),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  String _normalizeFactionName(String value) {
+    const map = {
+      'Coroa Verde': 'Coroa Verde',
+      'Ativistas': 'Vanguarda Viva',
+      'Bandidos': 'Lenda do Pântano',
+      'Medic': 'Ordem da Sombra',
+      'None': 'Coroa Verde',
+    };
+    return map[value] ?? value;
   }
 }
 
@@ -175,18 +182,26 @@ class _HeroCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withAlpha(18)),
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.surface,
+            AppTheme.surfaceAlt,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: AppTheme.primary.withAlpha(70), width: 1.1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(30),
-            blurRadius: 18,
+            color: AppTheme.primary.withAlpha(25),
+            blurRadius: 24,
             offset: const Offset(0, 12),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -194,23 +209,67 @@ class _HeroCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withAlpha(18),
+                  color: AppTheme.primary.withAlpha(20),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.notifications_none_rounded, size: 20),
+                child: const Icon(Icons.notifications_none_rounded, size: 20, color: AppTheme.primaryStrong),
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(10),
-                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                child: const Text('Close', style: TextStyle(fontWeight: FontWeight.w600)),
+                child: const Text(
+                  'Conectado',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              FactionBadge(symbol: symbol, colorHex: colorHex),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      nickname,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '@${nickname.toLowerCase().replaceAll(RegExp(r'\s+'), '')}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: _factionColor.withAlpha(26),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _factionColor.withAlpha(120), width: 2),
+                ),
+                child: Icon(Icons.add_rounded, color: _factionColor),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -222,72 +281,25 @@ class _HeroCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  const Icon(Icons.monetization_on_rounded, color: AppTheme.primary, size: 18),
+                  const Icon(Icons.eco_rounded, color: AppTheme.primaryStrong, size: 18),
+                  const SizedBox(width: 6),
                   Text(
-                    ' $reputation',
+                    '$reputation',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primary,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppTheme.background,
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Row(
-              children: [
-                FactionBadge(symbol: symbol, colorHex: colorHex),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        nickname,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '@${nickname.toLowerCase().replaceAll(' ', '')}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.muted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: _factionColor.withAlpha(30),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: _factionColor, width: 2),
-                  ),
-                  child: Icon(Icons.add_rounded, color: _factionColor),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              factionName,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppTheme.neutral,
-              ),
+          const SizedBox(height: 10),
+          Text(
+            factionName,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppTheme.primaryStrong,
             ),
           ),
         ],
@@ -317,20 +329,23 @@ class _ActionTile extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppTheme.primary.withAlpha(18),
+            color: AppTheme.panel,
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Icon(icon, color: AppTheme.primary, size: 26),
+          child: Icon(icon, color: AppTheme.primaryStrong, size: 24),
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: AppTheme.textPrimary,
+          ),
         ),
         subtitle: Text(
           subtitle,
           style: TextStyle(color: AppTheme.muted),
         ),
-        trailing: const Icon(Icons.chevron_right_rounded),
+        trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.primaryStrong),
         onTap: onTap,
       ),
     );
