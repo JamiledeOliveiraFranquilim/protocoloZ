@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../repositories/device_media_repository.dart';
 import '../../widgets/image_source_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -27,7 +28,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     try {
       final row = await client.from('profiles').select('avatar_url').single();
-      if (mounted) setState(() { avatarUrl = row['avatar_url']; loading = false; });
+      if (mounted) {
+        setState(() {
+          avatarUrl = row['avatar_url'];
+          loading = false;
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => loading = false);
     }
@@ -50,7 +56,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await client.rpc('set_my_avatar_url', params: {'p_avatar_url': url});
       if (mounted) setState(() => avatarUrl = url);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Não foi possível atualizar o avatar: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível atualizar o avatar: $e')),
+        );
+      }
     } finally {
       if (mounted) setState(() => uploading = false);
     }
@@ -60,35 +70,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final user = client.auth.currentUser;
     final nickname = user?.userMetadata?['nickname'] ?? 'Sobrevivente';
+
     return Scaffold(
-      appBar: AppBar(title: const Text('PERFIL')),
-      body: ListView(padding: const EdgeInsets.all(20), children: [
-        Center(child: Stack(children: [
-          CircleAvatar(
-            radius: 48,
-            backgroundColor: const Color(0xFF29382D),
-            backgroundImage: avatarUrl == null ? null : NetworkImage(avatarUrl!),
-            child: avatarUrl == null ? const Icon(Icons.person, size: 48) : null,
+      backgroundColor: const Color(0xFFF5F8F5),
+      appBar: AppBar(title: const Text('Perfil')),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Center(
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 48,
+                  backgroundColor: const Color(0xFFEAF4ED),
+                  backgroundImage: avatarUrl == null ? null : NetworkImage(avatarUrl!),
+                  child: avatarUrl == null ? const Icon(Icons.person_rounded, size: 48, color: Color(0xFF3EA65E)) : null,
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: IconButton.filled(
+                    onPressed: uploading ? null : _changeAvatar,
+                    icon: uploading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.camera_alt_rounded),
+                  ),
+                ),
+              ],
+            ),
           ),
-          Positioned(right: 0, bottom: 0, child: IconButton.filled(
-            onPressed: uploading ? null : _changeAvatar,
-            icon: uploading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.camera_alt),
-          )),
-        ])),
-        const SizedBox(height: 14),
-        Text(nickname, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-        Text(user?.email ?? '', textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFFA6ADA7))),
-        if (loading) const Padding(padding: EdgeInsets.all(12), child: Center(child: CircularProgressIndicator())),
-        const SizedBox(height: 28),
-        FilledButton.tonalIcon(
-          onPressed: () async {
-            await client.auth.signOut();
-            if (context.mounted) Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-          icon: const Icon(Icons.logout),
-          label: const Text('SAIR DA CONTA'),
-        ),
-      ]),
+          const SizedBox(height: 14),
+          Text(
+            nickname,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1A2A23),
+            ),
+          ),
+          Text(
+            user?.email ?? '',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Color(0xFF5A6A62)),
+          ),
+          if (loading)
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          const SizedBox(height: 28),
+          FilledButton.tonalIcon(
+            onPressed: () async {
+              await client.auth.signOut();
+              if (context.mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            icon: const Icon(Icons.logout_rounded),
+            label: const Text('SAIR DA CONTA'),
+          ),
+        ],
+      ),
     );
   }
 }
